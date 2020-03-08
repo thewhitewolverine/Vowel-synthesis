@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>as1</title>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] },
+  TeX: { equationNumbers: { autoNumber: 'all' } }
+});
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+<style>
+body > * {
+  max-width: 42em;
+}
+body {
+  font-family: "Roboto Condensed", sans-serif;
+  padding-left: 7.5em;
+  padding-right: 7.5em;
+}
+pre, code {
+  max-width: 50em;
+  font-family: monospace;
+}
+pre.oct-code {
+  border: 1px solid Grey;
+  padding: 5px;
+}
+pre.oct-code-output {
+  margin-left: 2em;
+}
+span.comment {
+  color: ForestGreen;
+}
+span.keyword {
+  color: Blue;
+}
+span.string {
+  color: DarkOrchid;
+}
+footer {
+  margin-top: 2em;
+  font-size: 80%;
+}
+a, a:visited {
+  color: Blue;
+}
+h2 {
+  font-family: "Roboto Condensed", serif;
+  margin-top: 1.5em;
+}
+h2 a, h2 a:visited {
+  color: Black;
+}
+</style>
+
+</head>
+<body>
+<h1>as1</h1>
+
+
+<pre class="oct-code">pkg load control;
+pkg load signal;
+pkg load image;
+
+<span class="comment">#Question 1</span>
+fs = 16000;
+b1 = 200;
+f1 = 900;
+z = tf(<span class="string">"z"</span>, 1/fs);
+t = 0:1/fs:0.5;
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+c2 = exp(-2*b1*pi*(1/fs));
+[h,w] = freqz([1],[1,c11,c2]);
+  figure(1);
+  plot(w*fs/(2*pi), 20*log10(h));
+  title(<span class="string">"Magnitude plot Q1"</span>);
+hv = ifft(h);
+  figure(2);
+  plot(w*fs/(2*pi), hv);
+  title(<span class="string">"Impulse response Q1"</span>);
+
+<span class="comment">#Question 2</span>
+f0 = 140;
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, <span class="string">"tripuls"</span>, 0.001);
+  figure(3);
+  plot(inp);
+  title(<span class="string">"Pulse train Q2"</span>);
+trans = 1/(1 + c11*z^-1 + c2*z^-2);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  figure(4);
+  plot(result(1:1000));
+  title(<span class="string">"Result Q2"</span>);
+  audiowrite (<span class="string">"Ques2.wav"</span>, result, fs);
+
+<span class="comment">#Question 3a</span>
+f0 = 120;
+f1 = 300;
+b1 = 100;
+c2 = exp(-2*b1*pi*(1/fs));
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, <span class="string">"tripuls"</span>, 0.001);
+trans = 1/(1 + c11*z^-1 + c2*z^-2);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  audiowrite (<span class="string">"Ques3a.wav"</span>, result, fs);
+
+<span class="comment">#Question 3b</span>
+f0 = 120;
+f1 = 1200;
+b1 = 200;
+c2 = exp(-2*b1*pi*(1/fs));
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, <span class="string">"tripuls"</span>, 0.001);
+trans = 1/(1 + c11*z^-1 + c2*z^-2);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  audiowrite (<span class="string">"Ques3b.wav"</span>, result, fs);
+
+<span class="comment">#Question 3c</span>
+f0 = 180;
+f1 = 300;
+b1 = 100;
+c2 = exp(-2*b1*pi*(1/fs));
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, <span class="string">"tripuls"</span>, 0.001);
+trans = 1/(1 + c11*z^-1 + c2*z^-2);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  audiowrite (<span class="string">"Ques3c.wav"</span>, result, fs);
+
+<span class="comment">#Question 4 "a"</span>
+f0 = 120;
+f1 = 730;
+f2 = 1090;
+f3 = 2440;
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+c21 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f2*(1/fs));
+c31 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f3*(1/fs));
+trans = 1/((1 + c11*z^-1 + c2*z^-2)*(1 + c21*z^-1 + c2*z^-2)*(1 + c31*z^-1 + c2*z^-2));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, <span class="string">"tripuls"</span>, 0.001);
+imp = impulse(trans, t);
+result1 = conv(imp, inp);
+  audiowrite (<span class="string">"Ques4'a'_120Hz.wav"</span>, result1, fs);
+
+f0 = 220;
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, <span class="string">"tripuls"</span>, 0.001);
+result2 = conv(imp, inp);
+  audiowrite (<span class="string">"Ques4'a'_220Hz.wav"</span>, result2, fs);
+
+<span class="comment">#Question 4 "i"</span>
+f0 = 120;
+f1 = 270;
+f2 = 2290;
+f3 = 3010;
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+c21 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f2*(1/fs));
+c31 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f3*(1/fs));
+trans = 1/((1 + c11*z^-1 + c2*z^-2)*(1 + c21*z^-1 + c2*z^-2)*(1 + c31*z^-1 + c2*z^-2));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, <span class="string">"tripuls"</span>, 0.001);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  audiowrite (<span class="string">"Ques4'i'_120Hz.wav"</span>, result, fs);
+
+f0 = 220;
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, <span class="string">"tripuls"</span>, 0.001);
+result = conv(imp, inp);
+  audiowrite (<span class="string">"Ques4'i'_220Hz.wav"</span>, result, fs);
+
+<span class="comment">#Question 4 "u"</span>
+f0 = 120;
+f1 = 300;
+f2 = 870;
+f3 = 2240;
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+c21 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f2*(1/fs));
+c31 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f3*(1/fs));
+trans = 1/((1 + c11*z^-1 + c2*z^-2)*(1 + c21*z^-1 + c2*z^-2)*(1 + c31*z^-1 + c2*z^-2));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, <span class="string">"tripuls"</span>, 0.001);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  audiowrite (<span class="string">"Ques4'u'_120Hz.wav"</span>, result, fs);
+
+f0 = 220;
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, <span class="string">"tripuls"</span>, 0.001);
+result = conv(imp, inp);
+  audiowrite (<span class="string">"Ques4'u'_220Hz.wav"</span>, result, fs);
+
+<span class="comment">#Question 5</span>
+pad = 8000;
+t1 = 5e-3*fs;
+t2 = 10e-3*fs;
+t3 = 20e-3*fs;
+t4 = 40e-3*fs;
+
+pad  = 8000;
+rwind = rectwin(t1);
+win1 = result1<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(5);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @120hz rectangular window 5ms"</span>);
+
+rwind = rectwin(t2);
+win1 = result1<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(6);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @120hz rectangular window 10ms"</span>);
+
+rwind = rectwin(t3);
+win1 = result1<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(7);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @120hz rectangular window 20 ms"</span>);
+
+rwind = rectwin(t4);
+win1 = result1<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(8);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @120hz rectangular window 40 ms"</span>);
+
+rwind = hamming(t1);
+win1 = result1<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(9);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @120hz hamming window 5ms"</span>);
+
+rwind = hamming(t2);
+win1 = result1<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(10);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @120hz hamming window 10ms"</span>);
+
+rwind = hamming(t3);
+win1 = result1<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(11);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @120hz hamming window 20 ms"</span>);
+
+rwind = hamming(t4);
+win1 = result1<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(12);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @120hz hamming window 40 ms"</span>);
+
+rwind = rectwin(t1);
+win1 = result2<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(13);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @220hz rectangular window 5ms"</span>);
+
+rwind = rectwin(t2);
+win1 = result2<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(14);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @220hz rectangular window 10ms"</span>);
+
+rwind = rectwin(t3);
+win1 = result2<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(15);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @220hz rectangular window 20 ms"</span>);
+
+rwind = rectwin(t4);
+win1 = result2<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(16);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @220hz rectangular window 40 ms"</span>);
+
+rwind = hamming(t1);
+win1 = result2<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(17);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @220hz hamming window 5ms"</span>);
+
+rwind = hamming(t2);
+win1 = result2<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(18);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @220hz hamming window 10ms"</span>);
+
+rwind = hamming(t3);
+win1 = result2<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(19);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @220hz hamming window 20 ms"</span>);
+
+rwind = hamming(t4);
+win1 = result2<span class="string">'(1:length(rwind)).*rwind;</span>
+win1 = padarray(win1, pad - length(win1), 0, <span class="string">'post'</span>);
+res = abs(fftshift(win1));
+  figure(20);
+  plot(res(4000:4500));
+  title(<span class="string">"DTFT @220hz hamming window 40 ms"</span>);</pre>
+<img src="as1-1.png" alt="as1-1.png"><img src="as1-2.png" alt="as1-2.png"><img src="as1-3.png" alt="as1-3.png"><img src="as1-4.png" alt="as1-4.png"><img src="as1-5.png" alt="as1-5.png"><img src="as1-6.png" alt="as1-6.png"><img src="as1-7.png" alt="as1-7.png"><img src="as1-8.png" alt="as1-8.png"><img src="as1-9.png" alt="as1-9.png"><img src="as1-10.png" alt="as1-10.png"><img src="as1-11.png" alt="as1-11.png"><img src="as1-12.png" alt="as1-12.png"><img src="as1-13.png" alt="as1-13.png"><img src="as1-14.png" alt="as1-14.png"><img src="as1-15.png" alt="as1-15.png"><img src="as1-16.png" alt="as1-16.png"><img src="as1-17.png" alt="as1-17.png"><img src="as1-18.png" alt="as1-18.png"><img src="as1-19.png" alt="as1-19.png"><img src="as1-20.png" alt="as1-20.png">
+<footer>
+<hr>
+<a href="https://www.octave.org">Published with GNU Octave 5.1.0</a>
+</footer>
+<!--
+##### SOURCE BEGIN #####
+pkg load control;
+pkg load signal;
+pkg load image;
+
+#Question 1
+fs = 16000;
+b1 = 200;
+f1 = 900;
+z = tf("z", 1/fs);
+t = 0:1/fs:0.5;
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+c2 = exp(-2*b1*pi*(1/fs));
+[h,w] = freqz([1],[1,c11,c2]);
+  figure(1);
+  plot(w*fs/(2*pi), 20*log10(h));
+  title("Magnitude plot Q1");
+hv = ifft(h);
+  figure(2);
+  plot(w*fs/(2*pi), hv);
+  title("Impulse response Q1");
+
+#Question 2
+f0 = 140;
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, "tripuls", 0.001);
+  figure(3);
+  plot(inp);
+  title("Pulse train Q2");
+trans = 1/(1 + c11*z^-1 + c2*z^-2);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  figure(4);
+  plot(result(1:1000));
+  title("Result Q2");
+  audiowrite ("Ques2.wav", result, fs);
+
+#Question 3a
+f0 = 120;
+f1 = 300;
+b1 = 100;
+c2 = exp(-2*b1*pi*(1/fs));
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, "tripuls", 0.001);
+trans = 1/(1 + c11*z^-1 + c2*z^-2);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  audiowrite ("Ques3a.wav", result, fs);
+
+#Question 3b
+f0 = 120;
+f1 = 1200;
+b1 = 200;
+c2 = exp(-2*b1*pi*(1/fs));
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, "tripuls", 0.001);
+trans = 1/(1 + c11*z^-1 + c2*z^-2);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  audiowrite ("Ques3b.wav", result, fs);
+
+#Question 3c
+f0 = 180;
+f1 = 300;
+b1 = 100;
+c2 = exp(-2*b1*pi*(1/fs));
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, "tripuls", 0.001);
+trans = 1/(1 + c11*z^-1 + c2*z^-2);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  audiowrite ("Ques3c.wav", result, fs);
+
+#Question 4 "a"
+f0 = 120;
+f1 = 730;
+f2 = 1090;
+f3 = 2440;
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+c21 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f2*(1/fs));
+c31 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f3*(1/fs));
+trans = 1/((1 + c11*z^-1 + c2*z^-2)*(1 + c21*z^-1 + c2*z^-2)*(1 + c31*z^-1 + c2*z^-2));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, "tripuls", 0.001);
+imp = impulse(trans, t);
+result1 = conv(imp, inp);
+  audiowrite ("Ques4'a'_120Hz.wav", result1, fs);
+
+f0 = 220;
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, "tripuls", 0.001);
+result2 = conv(imp, inp);
+  audiowrite ("Ques4'a'_220Hz.wav", result2, fs);
+
+#Question 4 "i"
+f0 = 120;
+f1 = 270;
+f2 = 2290;
+f3 = 3010;
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+c21 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f2*(1/fs));
+c31 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f3*(1/fs));
+trans = 1/((1 + c11*z^-1 + c2*z^-2)*(1 + c21*z^-1 + c2*z^-2)*(1 + c31*z^-1 + c2*z^-2));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, "tripuls", 0.001);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  audiowrite ("Ques4'i'_120Hz.wav", result, fs);
+
+f0 = 220;
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, "tripuls", 0.001);
+result = conv(imp, inp);
+  audiowrite ("Ques4'i'_220Hz.wav", result, fs);
+
+#Question 4 "u"
+f0 = 120;
+f1 = 300;
+f2 = 870;
+f3 = 2240;
+c11 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f1*(1/fs));
+c21 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f2*(1/fs));
+c31 = -2*exp(-1*b1*pi*(1/fs))*cos(2*pi*f3*(1/fs));
+trans = 1/((1 + c11*z^-1 + c2*z^-2)*(1 + c21*z^-1 + c2*z^-2)*(1 + c31*z^-1 + c2*z^-2));
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, "tripuls", 0.001);
+imp = impulse(trans, t);
+result = conv(imp, inp);
+  audiowrite ("Ques4'u'_120Hz.wav", result, fs);
+
+f0 = 220;
+inp = pulstran (0:1/fs:0.5, 0:1/f0:0.5, "tripuls", 0.001);
+result = conv(imp, inp);
+  audiowrite ("Ques4'u'_220Hz.wav", result, fs);
+
+#Question 5
+pad = 8000;
+t1 = 5e-3*fs;
+t2 = 10e-3*fs;
+t3 = 20e-3*fs;
+t4 = 40e-3*fs;
+
+pad  = 8000;
+rwind = rectwin(t1);
+win1 = result1'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(5);
+  plot(res(4000:4500));
+  title("DTFT @120hz rectangular window 5ms");
+
+rwind = rectwin(t2);
+win1 = result1'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(6);
+  plot(res(4000:4500));
+  title("DTFT @120hz rectangular window 10ms");
+
+rwind = rectwin(t3);
+win1 = result1'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(7);
+  plot(res(4000:4500));
+  title("DTFT @120hz rectangular window 20 ms");
+
+rwind = rectwin(t4);
+win1 = result1'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(8);
+  plot(res(4000:4500));
+  title("DTFT @120hz rectangular window 40 ms");
+
+rwind = hamming(t1);
+win1 = result1'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(9);
+  plot(res(4000:4500));
+  title("DTFT @120hz hamming window 5ms");
+
+rwind = hamming(t2);
+win1 = result1'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(10);
+  plot(res(4000:4500));
+  title("DTFT @120hz hamming window 10ms");
+
+rwind = hamming(t3);
+win1 = result1'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(11);
+  plot(res(4000:4500));
+  title("DTFT @120hz hamming window 20 ms");
+
+rwind = hamming(t4);
+win1 = result1'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(12);
+  plot(res(4000:4500));
+  title("DTFT @120hz hamming window 40 ms");
+
+rwind = rectwin(t1);
+win1 = result2'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(13);
+  plot(res(4000:4500));
+  title("DTFT @220hz rectangular window 5ms");
+
+rwind = rectwin(t2);
+win1 = result2'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(14);
+  plot(res(4000:4500));
+  title("DTFT @220hz rectangular window 10ms");
+
+rwind = rectwin(t3);
+win1 = result2'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(15);
+  plot(res(4000:4500));
+  title("DTFT @220hz rectangular window 20 ms");
+
+rwind = rectwin(t4);
+win1 = result2'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(16);
+  plot(res(4000:4500));
+  title("DTFT @220hz rectangular window 40 ms");
+
+rwind = hamming(t1);
+win1 = result2'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(17);
+  plot(res(4000:4500));
+  title("DTFT @220hz hamming window 5ms");
+
+rwind = hamming(t2);
+win1 = result2'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(18);
+  plot(res(4000:4500));
+  title("DTFT @220hz hamming window 10ms");
+
+rwind = hamming(t3);
+win1 = result2'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(19);
+  plot(res(4000:4500));
+  title("DTFT @220hz hamming window 20 ms");
+
+rwind = hamming(t4);
+win1 = result2'(1:length(rwind)).*rwind;
+win1 = padarray(win1, pad - length(win1), 0, 'post');
+res = abs(fftshift(win1));
+  figure(20);
+  plot(res(4000:4500));
+  title("DTFT @220hz hamming window 40 ms");
+##### SOURCE END #####
+-->
+</body>
+</html>
